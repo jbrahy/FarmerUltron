@@ -3,6 +3,9 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+int resval = 0;
+int respin = A5;
+
 int water_sensor_pin = 1;
 File configuration;
 char alexa_api_key[] = "";
@@ -10,8 +13,8 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED}; // mac address of card
 char server[] = "www.google.com";    // name address for Google (using DNS)
 
 // Set the static IP address to use if the DHCP fails to assign
-IPAddress ip(192, 168, 0, 177);
-IPAddress myDns(192, 168, 0, 1);
+IPAddress ip(192, 168, 4, 254);
+IPAddress myDns(192, 168, 4, 1);
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
@@ -24,7 +27,8 @@ bool configuration_read = false;
 
 void setup() {
     // Open serial communications and wait for port to open:
-    Serial.begin(9600);
+    //Serial.begin(9600);
+    Serial.begin(115200);
     while (!Serial) { ; // wait for serial port to connect. Needed for native USB port only
     }
 
@@ -86,7 +90,23 @@ void alert_alexa(char message) {
 }
 
 int check_water_level() {
-    return 100;
+
+    resval = analogRead(respin);
+
+    Serial.print("Water level is: ");
+    Serial.print(resval);
+    Serial.print("\n");
+
+    if (resval <= 500) {
+        Serial.println("Water level is low value is < 500");
+    } else if (resval <= 600) {
+        Serial.println("Water level is <= 600");
+    } else if (resval <= 700) {
+        Serial.println("Water level is  <= 700");
+    } else {
+        Serial.println("Water level is full > 700");
+    }
+    return resval;
 }
 
 bool read_configuration() {
